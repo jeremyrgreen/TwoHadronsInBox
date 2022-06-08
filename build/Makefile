@@ -31,12 +31,13 @@ CD_SX2MAX_VALUE=3
 
 
 CXX = g++
-CXXFLAGS = -O3 -std=c++11 -Wall -I../source
+CXXFLAGS = -O3 -std=c++11 -Wall -I../source -fpic $(shell python-config --cflags)
 #CXXFLAGS = -O3 -std=c++0x -Wall
 DFLAGS = -DAR_LMAX=$(AR_LMAX_VALUE) -DOA_LMAX=$(OA_LMAX_VALUE) \
          -DPD_LMAX=$(PD_LMAX_VALUE) -DCD_LMAX=$(CD_LMAX_VALUE) \
          -DAR_SX2MAX=$(AR_SX2MAX_VALUE) -DOA_SX2MAX=$(OA_SX2MAX_VALUE) \
-         -DPD_SX2MAX=$(PD_SX2MAX_VALUE) -DCD_SX2MAX=$(CD_SX2MAX_VALUE)
+         -DPD_SX2MAX=$(PD_SX2MAX_VALUE) -DCD_SX2MAX=$(CD_SX2MAX_VALUE) \
+         -fPIC
 LDFLAGS =
 LIBS=-llapack
 
@@ -74,10 +75,16 @@ OBJS = $(SRCS:.cc=.o)
 
 .SECONDARY: $(OBJS)
 
-all:  driver1 driver2
+all:  driver1 driver2 _box.so
 
 driver%: driver%.cc $(OBJS)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o driver$* ../source/driver$*.cc $(OBJS) $(LIBS) 
+
+box_wrap.o: box_wrap.cc
+box_wrap.cc: ../source/box.i
+	swig -python -py3 -c++ -o box_wrap.cc ../source/box.i
+_box.so: box_wrap.o $(OBJS)
+	$(CXX) $(CXXFLAGS) -shared $(LDFLAGS) $(shell python-config --libs) -o _box.so $(OBJS) box_wrap.o $(LIBS)
 
   #  do not optimize these routines (very long compile time)
 
@@ -105,4 +112,4 @@ box_matrix_cd2.o: box_matrix_cd2.cc $(INCS) Makefile
 	$(CXX) $(CXXFLAGS) $(DFLAGS) -c $< -o $@
 
 clean:
-	rm -f *.o driver1 driver2
+	rm -f *.o driver1 driver2 box_wrap.cc box.py _box.so
