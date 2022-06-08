@@ -102,7 +102,7 @@ int BoxMatrix::getElementIndexNegIfFail(const BoxMatrixQuantumNumbers& bqn) cons
 
 BoxMatrixQuantumNumbers BoxMatrix::getQuantumNumbers(uint index) const
 {
- if (index>m_nelem)
+ if (index>=m_nelem)
     throw(std::runtime_error("Invalid index"));
  return m_quantnums[index];
 }
