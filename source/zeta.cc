@@ -1678,7 +1678,7 @@ void WZetaRGLCalculator::reset(const std::vector<double>& s,
 void WZetaRGLCalculator::reset_if_diff(const std::vector<double>& s, 
                                        double gam, double usq)
 {
- const double eps=1e-10;
+ const double eps=0; // recompute unless parameters are identical
  if ((std::abs(m_gam-gam)>eps)||(std::abs(m_usq-usq)>eps)||
      (std::abs(m_svec[0]-s[0])>eps)||(std::abs(m_svec[1]-s[1])>eps)||
      (std::abs(m_svec[2]-s[2])>eps)){
